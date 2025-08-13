@@ -1,403 +1,188 @@
-<!doctype html>
 <html lang="hi">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>SM JSON-LD Generator — Samridh Media</title>
-  <meta name="description" content="JSON-LD generator for Google News — modern UI, desktop friendly, live preview.">
-  <!-- Tailwind CDN -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Inter font -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <!-- Prism for code highlighting -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+  <meta name="description" content="JSON-LD generator for Google News — modern UI, desktop friendly">
 
   <style>
-    :root{ --accent: 99,102,241; --accent-hex: #6366f1; }
-    html,body { height:100%; }
-    body { font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
-    .glass { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.04); backdrop-filter: blur(6px); }
-    pre.prism { max-height: 520px; overflow:auto; }
-
-    /* Footer & icon styles */
-    .footer-icon { transition: transform .28s cubic-bezier(.2,.9,.3,1), filter .28s ease, color .2s ease; transform-origin: center; color: rgba(255,255,255,0.8); }
-    .footer-icon:hover { transform: translateY(-6px) scale(1.08); filter: drop-shadow(0 12px 30px rgba(var(--accent),0.14)); }
-    .footer-glow { position: absolute; inset: -8px; border-radius: 14px; background: linear-gradient(90deg, rgba(var(--accent),0.06), rgba(139,92,246,0.035)); z-index: -1; filter: blur(14px); opacity: 0; transition: opacity .35s ease; }
-    .footer-wrap:hover .footer-glow { opacity: 1; }
-    @keyframes floaty { 0% { transform: translateY(0px); } 50% { transform: translateY(-6px); } 100% { transform: translateY(0px); } }
-    .floaty { animation: floaty 6s ease-in-out infinite; }
-
-    /* tooltip */
-    .tooltip { position: relative; }
-    .tooltip:hover::after { content: attr(data-tip); position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); background: rgba(15, 23, 42, 0.95); color: #fff; padding: 6px 8px; border-radius: 6px; font-size: 12px; white-space: nowrap; box-shadow: 0 8px 30px rgba(2,6,23,0.6); }
-
-    /* animated dev link underline */
-    #devLink { position: relative; display: inline-block; }
-    #devLink::after { content: ''; position: absolute; left: 0; bottom: -4px; height: 2px; width: 0; background: linear-gradient(90deg,var(--accent-hex),#8b5cf6); transition: width .28s cubic-bezier(.2,.9,.3,1); border-radius: 2px; }
-    #devLink:hover::after{ width: 100%; }
-
-    /* toast */
-    #toast { position: fixed; right: 20px; bottom: 24px; background: rgba(15,23,42,0.95); color: #e6eef8; padding: 10px 14px; border-radius: 10px; box-shadow: 0 12px 40px rgba(2,6,23,0.6); transform: translateY(10px); opacity: 0; transition: all .32s; z-index: 9999; }
-    #toast.show { opacity: 1; transform: translateY(0); }
-
-    /* SEO badge */
-    .seo-badge { display:inline-flex; align-items:center; gap:8px; background: rgba(255,255,255,0.02); padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,0.03); }
-    .seo-dot { width:10px; height:10px; border-radius:50%; background: linear-gradient(90deg,var(--accent-hex),#8b5cf6); box-shadow: 0 6px 20px rgba(var(--accent),0.14); }
-
-    /* small responsive tweaks */
-    @media (max-width: 1024px){ pre.prism{ max-height: 360px; } }
+    :root{ --bg-1:#071024; --bg-2:#0b1020; --glass: rgba(255,255,255,0.04); --glass-border: rgba(255,255,255,0.06); --accent:#6366f1; --accent-2:#8b5cf6; --muted:#94a3b8; }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; background:linear-gradient(135deg,var(--bg-1) 0%, var(--bg-2) 100%); color:#e6eef8}
+    .wrap{max-width:1180px;margin:28px auto;padding:18px}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:800;color:white}
+    h1{margin:0;font-size:20px}
+    .muted{color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:1fr 420px;gap:20px}
+    @media (max-width:980px){ .grid{grid-template-columns:1fr} }
+    .card{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-radius:14px;padding:18px;box-shadow:0 12px 36px rgba(2,6,23,0.6)}
+    label{display:block;margin-bottom:6px;color:var(--muted);font-size:13px}
+    input[type='text'],input[type='url'],input[type='date'],textarea{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.06);background:transparent;color:inherit;outline:none}
+    textarea{min-height:84px;resize:vertical}
+    .btn{cursor:pointer;border:0;padding:10px 14px;border-radius:12px}
+    .btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white}
+    .btn-ghost{background:rgba(255,255,255,0.03);color:var(--muted)}
+    .preview{display:flex;gap:12px;align-items:flex-start}
+    .preview img{width:180px;height:115px;object-fit:cover;border-radius:8px}
+    pre{background:rgba(0,0,0,0.35);padding:12px;border-radius:10px;overflow:auto;color:#dbeafe;font-family:ui-monospace,Menlo,monospace;font-size:13px}
+    .footer-inner{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .socials{display:flex;gap:10px;align-items:center}
+    .social{width:36px;height:36px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.02);cursor:pointer;transition:transform .28s,box-shadow .28s}
+    .social:hover{transform:translateY(-6px);box-shadow:0 10px 30px rgba(99,102,241,0.08)}
+    .small{font-size:13px;color:var(--muted)}
+    .hidden{display:none}
+    .seo{display:flex;gap:8px;align-items:center}
+    .seo .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
   </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-950 text-slate-100 p-6">
-  <div class="max-w-7xl mx-auto">
-    <header class="mb-6 flex items-center justify-between">
-      <div>
-        <h1 class="text-3xl font-extrabold">Samridh Media -JSON‑LD Generator</h1>
-        <p class="text-sm text-slate-300 mt-1">For Google News compatible schema</p>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">SM</div>
+        <div>
+          <h1>Samridh Media -JSON-LD Generator</h1>
+          <div class="muted">For Google News compatible schema </div>
+        </div>
       </div>
-      <div class="flex items-center gap-3">
-        <button id="themeToggle" class="bg-slate-800/40 hover:bg-slate-700 px-3 py-2 rounded-md text-sm">Toggle Light</button>
-        <a href="#howto" class="text-sm text-slate-300/80 hover:underline">How to deploy</a>
-      </div>
+      <div class="muted">Preset: <strong>Samridh jharkhand</strong></div>
     </header>
 
-    <main class="grid grid-cols-12 gap-6 items-start">
-      <!-- Form column -->
-      <section class="col-span-12 lg:col-span-6 glass rounded-2xl p-6 shadow-xl">
-        <div class="flex items-center justify-between">
-          <h2 class="text-xl font-semibold mb-2">Article Details</h2>
-          <div class="seo-badge" title="Quick SEO hints"><div class="seo-dot" id="seoDot"></div><div class="text-xs text-slate-300" id="seoText">Ready</div></div>
+    <main class="grid">
+      <section class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <h2 style="margin:0">Article Details</h2>
+          <div class="seo"><div class="dot"></div><div class="small" id="seoText">Ready</div></div>
         </div>
 
-        <form id="articleForm" class="space-y-4" onsubmit="event.preventDefault(); generateSchema();">
-          <div>
-            <label class="block text-sm text-slate-300 mb-1">Article URL</label>
-            <input id="url" type="url" placeholder="https://example.com/article" class="w-full rounded-xl p-3 bg-slate-900 border border-slate-700 focus:ring-2 focus:ring-indigo-500 outline-none" aria-label="Article URL">
-          </div>
+        <form id="articleForm" onsubmit="event.preventDefault(); generateSchema();">
+          <label for="url">Article URL</label>
+          <input id="url" type="url" placeholder="https://example.com/article">
 
-          <div class="grid grid-cols-12 gap-4">
-            <div class="col-span-12 md:col-span-8">
-              <label class="block text-sm text-slate-300 mb-1">Headline <span class="text-xs text-slate-400">(required)</span></label>
-              <input id="headline" type="text" placeholder="Article headline" class="w-full rounded-xl p-3 bg-slate-900 border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500" aria-required="true">
-              <p id="headlineHelp" class="text-xs text-rose-400 mt-1 hidden">Headline is required for Google News.</p>
+          <div style="display:flex;gap:12px;margin-top:12px">
+            <div style="flex:2">
+              <label for="headline">Headline <span class="small" style="color:#fca5a5">(required)</span></label>
+              <input id="headline" type="text" placeholder="Article headline">
+              <div id="headlineHelp" class="small hidden" style="color:#fb7185;margin-top:6px">Headline is required for Google News.</div>
             </div>
-            <div class="col-span-12 md:col-span-4">
-              <label class="block text-sm text-slate-300 mb-1">Author</label>
-              <input id="author" type="text" placeholder="Author name" class="w-full rounded-xl p-3 bg-slate-900 border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
-          </div>
-
-          <div>
-            <label class="block text-sm text-slate-300 mb-1">Main story</label>
-            <textarea id="description" rows="3" placeholder="A brief description" class="w-full rounded-xl p-3 bg-slate-900 border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
-          </div>
-
-          <div class="grid grid-cols-12 gap-4">
-            <div class="col-span-12 md:col-span-8">
-              <label class="block text-sm text-slate-300 mb-1">Image URL</label>
-              <input id="image" type="url" placeholder="https://example.com/image.jpg" class="w-full rounded-xl p-3 bg-slate-900 border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
-            </div>
-            <div class="col-span-12 md:col-span-4 flex flex-col">
-              <label class="block text-sm text-slate-300 mb-1">Publisher</label>
-              <input id="publisher" type="text" placeholder="Website/Channel name" value="Samridh jharkhand" class="w-full rounded-xl p-3 bg-slate-900 border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+            <div style="flex:1">
+              <label for="author">Author</label>
+              <input id="author" type="text" placeholder="Author name">
             </div>
           </div>
 
-          <div class="grid grid-cols-12 gap-4 items-end">
-            <div class="col-span-12 md:col-span-6">
-              <label class="block text-sm text-slate-300 mb-1">Publisher Logo</label>
-              <input id="logo" type="url" placeholder="https://example.com/logo.png" value="https://samridhjharkhand.com/media-webp/250/2024-06/samridh-jharkhand.png" class="w-full rounded-xl p-3 bg-slate-900 border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+          <label for="description" style="margin-top:12px">Short Description</label>
+          <textarea id="description" placeholder="A brief description"></textarea>
+
+          <div style="display:flex;gap:12px;margin-top:12px;align-items:flex-end">
+            <div style="flex:2">
+              <label for="image">Image URL</label>
+              <input id="image" type="url" placeholder="https://example.com/image.jpg">
             </div>
-            <div class="col-span-6 md:col-span-3">
-              <label class="block text-sm text-slate-300 mb-1">Date Published <span class="text-xs text-slate-400">(required)</span></label>
-              <input id="datePublished" type="date" class="w-full rounded-xl p-3 bg-slate-900 border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500" aria-required="true">
-            </div>
-            <div class="col-span-6 md:col-span-3">
-              <label class="block text-sm text-slate-300 mb-1">Date Modified</label>
-              <input id="dateModified" type="date" class="w-full rounded-xl p-3 bg-slate-900 border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
+            <div style="flex:1">
+              <label for="publisher">Publisher</label>
+              <input id="publisher" type="text" value="Samridh jharkhand">
             </div>
           </div>
 
-          <div class="flex items-center gap-3 pt-3">
-            <button id="generateBtn" type="submit" class="flex-1 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold shadow-lg hover:scale-[1.01] active:scale-[0.995] transition-all" title="Generate JSON-LD">Generate & Preview</button>
-            <button id="clearBtn" type="button" class="px-4 py-3 rounded-2xl bg-slate-800 text-slate-300" title="Clear form">Clear</button>
+          <div style="display:flex;gap:12px;margin-top:12px;align-items:end">
+            <div style="flex:1">
+              <label for="logo">Publisher Logo</label>
+              <input id="logo" type="url" value="https://samridhjharkhand.com/media-webp/250/2024-06/samridh-jharkhand.png">
+            </div>
+            <div style="flex:1">
+              <label for="datePublished">Date Published <span class="small" style="color:#fca5a5">(required)</span></label>
+              <input id="datePublished" type="date">
+            </div>
+            <div style="flex:1">
+              <label for="dateModified">Date Modified</label>
+              <input id="dateModified" type="date">
+            </div>
           </div>
 
-          <!-- Optional footer / social links (collapsible) -->
-          <details class="mt-4 bg-slate-900/30 p-3 rounded-lg">
-            <summary class="cursor-pointer text-sm text-slate-300 font-medium">Add footer & social links (optional)</summary>
-            <div class="mt-3 grid grid-cols-12 gap-3">
-              <div class="col-span-12 md:col-span-6">
-                <label class="text-sm text-slate-300 mb-1">Facebook URL</label>
-                <input id="socialFacebook" type="url" placeholder="https://facebook.com/yourpage" class="w-full rounded-xl p-3 bg-slate-900 border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
-              </div>
-              <div class="col-span-12 md:col-span-6">
-                <label class="text-sm text-slate-300 mb-1">X / Twitter URL</label>
-                <input id="socialX" type="url" placeholder="https://x.com/yourhandle" class="w-full rounded-xl p-3 bg-slate-900 border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
-              </div>
-              <div class="col-span-12 md:col-span-6">
-                <label class="text-sm text-slate-300 mb-1">Instagram URL</label>
-                <input id="socialInstagram" type="url" placeholder="https://instagram.com/yourpage" class="w-full rounded-xl p-3 bg-slate-900 border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
-              </div>
-              <div class="col-span-12 md:col-span-6">
-                <label class="text-sm text-slate-300 mb-1">YouTube URL</label>
-                <input id="socialYouTube" type="url" placeholder="https://youtube.com/channel/..." class="w-full rounded-xl p-3 bg-slate-900 border border-slate-700 outline-none focus:ring-2 focus:ring-indigo-500">
-              </div>
+          <div style="display:flex;gap:10px;margin-top:14px;align-items:center">
+            <button id="generateBtn" class="btn btn-primary" type="submit">Generate & Preview</button>
+            <button id="clearBtn" class="btn btn-ghost" type="button">Clear</button>
+            <label style="margin-left:auto" class="small" title="Upload image from device">
+              <input id="imageUpload" type="file" accept="image/*" style="display:none">Upload Image
+            </label>
+          </div>
+
+          <details style="margin-top:12px;padding:10px;background:rgba(255,255,255,0.02);border-radius:10px">
+            <summary class="small muted">Add footer & social links (optional)</summary>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+              <input id="socialFacebook" placeholder="Facebook URL">
+              <input id="socialX" placeholder="X / Twitter URL">
+              <input id="socialInstagram" placeholder="Instagram URL">
+              <input id="socialYouTube" placeholder="YouTube URL">
             </div>
           </details>
+
         </form>
 
-        <div class="mt-6 border-t border-slate-700 pt-4 text-sm text-slate-400">
-          Tip: Use valid absolute URLs for image and logo. Dates and headline are required for Google News eligibility.
-        </div>
+        <div class="small muted" style="margin-top:12px">Tip: Headline and Date Published required for Google News. Use upload to embed local images.</div>
       </section>
 
-      <!-- Preview & code column -->
-      <aside class="col-span-12 lg:col-span-6 space-y-4">
-        <div class="glass rounded-2xl p-4 shadow-xl">
-          <div class="flex items-start justify-between">
-            <h3 class="text-lg font-semibold">Live Article Preview</h3>
-            <div class="text-sm text-slate-300">Desktop layout</div>
+      <aside>
+        <div class="card" style="margin-bottom:12px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h3 style="margin:0">Live Preview</h3>
+            <div class="small muted">Desktop</div>
           </div>
 
-          <article id="previewCard" class="mt-4 bg-gradient-to-br from-slate-800/60 to-slate-900/60 p-4 rounded-xl flex gap-4 items-start">
-            <img id="previewImage" src="https://via.placeholder.com/220x140?text=Image" alt="Article image" class="w-44 h-28 object-cover rounded-md shadow-inner border border-slate-700">
+          <div class="preview" style="margin-top:12px">
+            <img id="previewImage" src="https://via.placeholder.com/1200x628?text=Image" alt="preview">
             <div>
-              <h4 id="previewHeadline" class="text-xl font-bold">Article Headline</h4>
-              <p id="previewDesc" class="mt-2 text-slate-300 text-sm">Short description will appear here. This preview helps you check the JSON-LD content visually.</p>
-              <div class="mt-3 text-xs text-slate-400 flex items-center gap-3">
-                <span id="previewAuthor">— Author Name</span>
-                <span id="previewDates">• 2025-01-01</span>
-              </div>
+              <h3 id="previewHeadline">Article Headline</h3>
+              <div id="previewDesc" class="muted">Short description will appear here.</div>
+              <div class="small muted" style="margin-top:10px"><span id="previewAuthor">— Author Name</span> <span id="previewDates">• 2025-01-01</span></div>
             </div>
-          </article>
+          </div>
         </div>
 
-        <div class="glass rounded-2xl p-4 shadow-xl">
-          <div class="flex items-center justify-between">
-            <h3 class="text-lg font-semibold">Generated JSON‑LD</h3>
-            <div class="flex items-center gap-2">
-              <button id="copyBtn" class="px-3 py-2 rounded-md bg-slate-800 hover:bg-slate-700 text-sm">Copy</button>
-              <button id="copyScriptBtn" class="px-3 py-2 rounded-md bg-slate-800 hover:bg-slate-700 text-sm">Copy &lt;script&gt;</button>
-              <button id="downloadBtn" class="px-3 py-2 rounded-md bg-slate-800 hover:bg-slate-700 text-sm">Download .jsonld</button>
-              <button id="downloadHtmlBtn" class="px-3 py-2 rounded-md bg-slate-800 hover:bg-slate-700 text-sm">Download HTML</button>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h3 style="margin:0">Generated JSON-LD</h3>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button id="copyBtn" class="btn btn-ghost">Copy</button>
+              <button id="copyScriptBtn" class="btn btn-ghost">Copy &lt;script&gt;</button>
+              <button id="downloadBtn" class="btn btn-ghost">Download .jsonld</button>
+              <button id="downloadHtmlBtn" class="btn btn-ghost">Download HTML</button>
             </div>
           </div>
 
-          <pre id="codeBlock" class="prism mt-4 rounded-xl overflow-hidden"><code id="code" class="language-json">{}</code></pre>
+          <pre id="codeBlock" style="margin-top:12px">{}</pre>
         </div>
 
 
       </aside>
+
     </main>
 
-    <footer class="mt-8">
-      <div class="glass rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 footer-wrap relative overflow-hidden">
-        <div class="footer-glow"></div>
-
-        <div class="text-sm text-slate-300 flex items-center gap-2">
-          <span>Developed by</span>
-          <a href="#" id="devLink" class="font-semibold text-indigo-300 hover:text-indigo-100 tooltip" target="_blank" rel="noopener noreferrer" data-tip="Open developer profile">ER</a>
-          <span class="ml-2 text-xs text-slate-400">• Crafting clean tools</span>
+    <footer>
+      <div class="card footer-inner">
+        <div style="display:flex;gap:10px;align-items:center">
+          <div class="logo" style="width:40px;height:40px;font-size:14px">ER</div>
+          <div>
+            <div style="font-size:14px">Developed by <a href="#" title="Open profile">ER</a></div>
+            <div class="small muted">Crafting clean tools • © <span id="copyrightYear"></span> Samridh Media</div>
+          </div>
         </div>
 
-        <div class="flex items-center gap-3">
-          <a id="linkFacebook" href="#" target="_blank" rel="noopener noreferrer" class="footer-icon hidden" aria-label="Facebook" title="Facebook">
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M22 12a10 10 0 10-11.5 9.9v-7h-2.2v-2.9h2.2V9.4c0-2.2 1.3-3.4 3.3-3.4.95 0 1.95.17 1.95.17v2.1h-1.07c-1.06 0-1.39.66-1.39 1.34v1.6h2.36l-.38 2.9h-1.98v7A10 10 0 0022 12z"/></svg>
-          </a>
-          <a id="linkX" href="#" target="_blank" rel="noopener noreferrer" class="footer-icon hidden" aria-label="X / Twitter" title="X / Twitter">
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M22 5.92c-.63.28-1.3.48-2 .57.72-.44 1.28-1.14 1.54-1.98-.67.4-1.41.7-2.2.86C18.6 4.3 17.66 4 16.64 4c-1.5 0-2.7 1.22-2.7 2.72 0 .21.02.42.07.62C10.9 7.18 8.14 5.35 6.23 2.8c-.23.4-.36.86-.36 1.36 0 .94.48 1.77 1.2 2.26-.56-.02-1.09-.17-1.55-.43v.04c0 1.32.94 2.42 2.2 2.67-.46.12-.95.15-1.45.06.41 1.27 1.6 2.2 3.02 2.23C8.44 12.9 7.16 13.56 5.77 13.56c-.35 0-.68-.02-1.01-.07C6.34 14.9 7.99 15.7 9.83 15.7c6.1 0 9.45-5.06 9.45-9.45v-.43c.66-.48 1.24-1.08 1.71-1.77-.6.27-1.25.45-1.93.53z"/></svg>
-          </a>
-          <a id="linkInstagram" href="#" target="_blank" rel="noopener noreferrer" class="footer-icon hidden floaty" aria-label="Instagram" title="Instagram">
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M7 2h10a5 5 0 015 5v10a5 5 0 01-5 5H7a5 5 0 01-5-5V7a5 5 0 015-5zm5 5.9A4.1 4.1 0 1016.1 12 4.11 4.11 0 0012 7.9zm6.4-.3a1.2 1.2 0 11-1.2-1.2 1.2 1.2 0 011.2 1.2zM12 9.7A2.3 2.3 0 1114.3 12 2.3 2.3 0 0112 9.7z"/></svg>
-          </a>
-          <a id="linkYouTube" href="#" target="_blank" rel="noopener noreferrer" class="footer-icon hidden" aria-label="YouTube" title="YouTube">
-            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M23.5 6.2s-.2-1.6-.8-2.4c-.8-1.1-1.7-1.1-2.1-1.2C16.8 2 12 2 12 2h-.1s-4.7 0-8.5.6c-.5 0-1.4.1-2.1 1.2-.6.8-.8 2.4-.8 2.4S0.1 8 0.1 9.8v1.4C0.1 13 0.4 14.7 0.4 14.7s.2 1.6.8 2.4c.8 1.1 1.9 1.1 2.4 1.2 1.7.2 7.2.6 8.9.6h.2s4.7 0 8.5-.6c.5 0 1.4-.1 2.1-1.2.6-.8.8-2.4.8-2.4s.3-1.7.3-3.5v-1.4c0-1.8-.3-3.5-.3-3.5zM9.8 15.5v-7l6.2 3.5-6.2 3.5z"/></svg>
-          </a>
-        </div>
-
-        <div class="text-xs text-slate-400 text-center md:text-right max-w-md">
-          <div>© <span id="copyrightYear"></span> Samridh Media. All rights reserved.</div>
-          <div class="mt-1">Disclaimer: Content generated using this tool is for informational purposes only. Verify facts and obtain necessary rights before publishing.</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="socials">
+            <div id="linkFacebook" class="social hidden" title="Facebook">F</div>
+            <div id="linkX" class="social hidden" title="X">X</div>
+            <div id="linkInstagram" class="social hidden" title="Instagram">I</div>
+            <div id="linkYouTube" class="social hidden" title="YouTube">Y</div>
+          </div>
+          <div class="small muted">Disclaimer: Content generated using this tool is for informational purposes only. Verify facts and rights before publishing.</div>
         </div>
       </div>
     </footer>
   </div>
-
-  <!-- toast -->
-  <div id="toast" role="status" aria-live="polite"></div>
-
-<script>
-  // Utilities
-  const $ = (id) => document.getElementById(id);
-  const DEFAULT_PUBLISHER = 'Samridh jharkhand';
-  const DEFAULT_LOGO = 'https://samridhjharkhand.com/media-webp/250/2024-06/samridh-jharkhand.png';
-  function toast(text, ms = 2200){
-    const el = $('toast');
-    el.textContent = text; el.classList.add('show');
-    setTimeout(()=> el.classList.remove('show'), ms);
-  }
-
-  function setTodayInputs() {
-    const today = new Date().toISOString().split('T')[0];
-    if (!$('datePublished').value) $('datePublished').value = today;
-    if (!$('dateModified').value) $('dateModified').value = today;
-  }
-
-  // Update preview from form
-  function updatePreview() {
-    const headline = $('headline').value || 'Article Headline';
-    const desc = $('description').value || 'Short description will appear here.';
-    const img = $('image').value || 'https://via.placeholder.com/1200x628?text=Image';
-    const author = $('author').value || 'Author Name';
-    const pub = $('datePublished').value || '';
-    const mod = $('dateModified').value || '';
-
-    $('previewHeadline').textContent = headline;
-    $('previewDesc').textContent = desc;
-    const pImg = $('previewImage');
-    pImg.src = img;
-    pImg.alt = headline;
-    // fallback on image error
-    pImg.onerror = () => { pImg.src = 'https://via.placeholder.com/1200x628?text=No+image'; };
-    $('previewAuthor').textContent = `— ${author}`;
-    $('previewDates').textContent = pub ? (mod && mod !== pub ? `${pub} • updated ${mod}` : pub) : '';
-
-    // SEO hint quick-score
-    const scoreEl = $('seoText'); const dot = $('seoDot');
-    const hlen = headline.length; const dlen = desc.length;
-    let score = 0; if (hlen>20 && hlen<120) score += 50; if (dlen>50 && dlen<320) score += 50; 
-    if (score>=80){ scoreEl.textContent = 'Good — publishable'; dot.style.background = 'linear-gradient(90deg,var(--accent-hex),#8b5cf6)'; }
-    else if (score>=40){ scoreEl.textContent = 'Okay — improve headline/description'; dot.style.background = 'orange'; }
-    else { scoreEl.textContent = 'Poor — add better headline/description'; dot.style.background = 'crimson'; }
-  }
-
-  // Validate required fields
-  function validate() {
-    let ok = true;
-    const headline = $('headline').value.trim();
-    const dp = $('datePublished').value;
-    if (!headline){ $('headlineHelp').classList.remove('hidden'); ok=false; } else { $('headlineHelp').classList.add('hidden'); }
-    if (!dp){ toast('Date published required for Google News.'); ok=false; }
-    return ok;
-  }
-
-  // Generate JSON-LD
-  function generateSchema() {
-    if (!validate()) return;
-
-    const url = $('url').value.trim();
-    const headline = $('headline').value.trim();
-    const description = $('description').value.trim();
-    const image = $('image').value.trim();
-    const author = $('author').value.trim();
-    const publisher = $('publisher').value.trim();
-    const logo = $('logo').value.trim();
-    const datePublished = $('datePublished').value;
-    const dateModified = $('dateModified').value;
-
-    const data = {
-      "@context": "https://schema.org",
-      "@type": "NewsArticle",
-      "mainEntityOfPage": { "@type": "WebPage", "@id": url || window.location.href },
-      "headline": headline || 'Article Headline',
-      "description": description || 'A brief description of the article',
-      "image": [ image || 'https://via.placeholder.com/1200x628' ],
-      "author": { "@type": "Person", "name": author || 'Author Name' },
-      "publisher": {
-        "@type": "Organization",
-        "name": publisher || DEFAULT_PUBLISHER,
-        "logo": { "@type": "ImageObject", "url": logo || DEFAULT_LOGO }
-      },
-      "datePublished": datePublished || new Date().toISOString(),
-      "dateModified": dateModified || datePublished || new Date().toISOString()
-    };
-
-    const json = JSON.stringify(data, null, 2);
-    $('code').textContent = json;
-    Prism.highlightElement($('code'));
-    updatePreview();
-    $('codeBlock').dataset.json = json;
-    toast('Schema generated');
-  }
-
-  // copy & download handlers
-  $('copyBtn').addEventListener('click', async () => {
-    const json = $('codeBlock').dataset.json || '{}';
-    try { await navigator.clipboard.writeText(json); $('copyBtn').textContent = 'Copied ✓'; setTimeout(()=> $('copyBtn').textContent = 'Copy', 1400); toast('JSON copied to clipboard'); }
-    catch(e){ console.error(e); toast('Copy failed — use select+copy'); }
-  });
-
-  $('copyScriptBtn').addEventListener('click', async () => {
-    const json = $('codeBlock').dataset.json || '{}';
-    const wrapped = `<script type=\"application/ld+json\">
-${json}
-<\/script>`;
-    try{ await navigator.clipboard.writeText(wrapped); $('copyScriptBtn').textContent = 'Copied ✓'; setTimeout(()=> $('copyScriptBtn').textContent = 'Copy <script>', 1400); toast('Script tag copied'); }
-    catch(e){ console.error(e); toast('Copy failed'); }
-  });
-
-  $('downloadBtn').addEventListener('click', () => {
-    const json = $('codeBlock').dataset.json || '{}';
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = 'schema.jsonld'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    toast('Downloaded schema.jsonld');
-  });
-
-  // generate a small HTML file containing script tag for download
-  $('downloadHtmlBtn').addEventListener('click', () => {
-    const json = $('codeBlock').dataset.json || '{}';
-    const content = `<!doctype html>
-<html><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>schema</title></head><body>
-<script type=\"application/ld+json\">
-${json}
-<\/script>
-</body></html>`;
-    const blob = new Blob([content], { type: 'text/html' });
-    const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'schema.html'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
-    toast('HTML with schema downloaded');
-  });
-
-  // clear
-  $('clearBtn').addEventListener('click', () => {
-    ['url','headline','description','image','author'].forEach(id => $(id).value = '');
-    setTodayInputs(); generateSchema(); toast('Form cleared');
-  });
-
-  // live updates
-  ['url','headline','description','image','author','publisher','logo','datePublished','dateModified'].forEach(id => {
-    const el = $(id);
-    if (el) el.addEventListener('input', () => generateSchema());
-  });
-
-  // footer links dynamic update
-  function updateFooter() {
-    const fb = $('socialFacebook') ? $('socialFacebook').value.trim() : '';
-    const x = $('socialX') ? $('socialX').value.trim() : '';
-    const ig = $('socialInstagram') ? $('socialInstagram').value.trim() : '';
-    const yt = $('socialYouTube') ? $('socialYouTube').value.trim() : '';
-    const links = [ { id: 'linkFacebook', url: fb }, { id: 'linkX', url: x }, { id: 'linkInstagram', url: ig }, { id: 'linkYouTube', url: yt } ];
-    links.forEach(l => {
-      const el = $(l.id); if (!el) return; if (l.url) { el.href = l.url; el.classList.remove('hidden'); } else { el.href = '#'; el.classList.add('hidden'); }
-    });
-    const year = new Date().getFullYear(); const copyEl = $('copyrightYear'); if (copyEl) copyEl.textContent = year;
-  }
-
-  ['socialFacebook','socialX','socialInstagram','socialYouTube'].forEach(id => { const el = $(id); if (el) el.addEventListener('input', updateFooter); });
-
-  // theme toggle
-  $('themeToggle').addEventListener('click', () => { document.documentElement.classList.toggle('light'); const isLight = document.documentElement.classList.contains('light'); $('themeToggle').textContent = isLight ? 'Toggle Dark' : 'Toggle Light'; });
-
-  // init
-  setTodayInputs(); generateSchema(); updateFooter();
-
-  // keyboard shortcut for copy script
-  window.addEventListener('keydown', (e) => { if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'c') { e.preventDefault(); $('copyScriptBtn').click(); } });
-
-
-</script>
 </body>
 </html>
