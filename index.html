@@ -3,8 +3,6 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>SM JSON-LD Generator — Samridh Media</title>
-  <meta name="description" content="JSON-LD generator for Google News — modern UI, desktop friendly">
-
   <style>
     :root{ --bg-1:#071024; --bg-2:#0b1020; --glass: rgba(255,255,255,0.04); --glass-border: rgba(255,255,255,0.06); --accent:#6366f1; --accent-2:#8b5cf6; --muted:#94a3b8; }
     *{box-sizing:border-box}
@@ -36,6 +34,31 @@
     .hidden{display:none}
     .seo{display:flex;gap:8px;align-items:center}
     .seo .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+
+    /* Footer improvements */
+    footer {
+      margin-top: 40px; /* gap from above content */
+    }
+    .footer-animate {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: footerFadeUp 0.8s ease-out forwards;
+    }
+    @keyframes footerFadeUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    /* Click color animation */
+    .footer-inner.click-anim {
+      animation: footerClickAnim 0.6s ease;
+    }
+    @keyframes footerClickAnim {
+      0% { background-color: rgba(99,102,241,0.15); }
+      50% { background-color: rgba(139,92,246,0.25); }
+      100% { background-color: var(--glass); }
+    }
   </style>
 </head>
 <body>
@@ -44,134 +67,83 @@
       <div class="brand">
         <div class="logo">SM</div>
         <div>
-          <h1>Samridh Media -JSON-LD Generator</h1>
-          <div class="muted">For Google News compatible schema </div>
+          <h1>Samridh Media - JSON-LD Generator</h1>
+          <div class="muted">For Google News compatible schema</div>
         </div>
       </div>
-      <div class="muted">Preset: <strong>Samridh jharkhand</strong></div>
+      <div class="muted">Preset: <strong>Samridh Jharkhand</strong></div>
     </header>
 
     <main class="grid">
       <section class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-          <h2 style="margin:0">Article Details</h2>
-          <div class="seo"><div class="dot"></div><div class="small" id="seoText">Ready</div></div>
-        </div>
-
         <form id="articleForm" onsubmit="event.preventDefault(); generateSchema();">
           <label for="url">Article URL</label>
           <input id="url" type="url" placeholder="https://example.com/article">
 
-          <div style="display:flex;gap:12px;margin-top:12px">
-            <div style="flex:2">
-              <label for="headline">Headline <span class="small" style="color:#fca5a5">(required)</span></label>
-              <input id="headline" type="text" placeholder="Article headline">
-              <div id="headlineHelp" class="small hidden" style="color:#fb7185;margin-top:6px">Headline is required for Google News.</div>
-            </div>
-            <div style="flex:1">
-              <label for="author">Author</label>
-              <input id="author" type="text" placeholder="Author name">
-            </div>
-          </div>
+          <label for="headline" style="margin-top:12px">Headline <span style="color:#fca5a5">(required)</span></label>
+          <input id="headline" type="text" placeholder="Article headline">
+
+          <label for="author" style="margin-top:12px">Author</label>
+          <input id="author" type="text" placeholder="Author name">
 
           <label for="description" style="margin-top:12px">Short Description</label>
           <textarea id="description" placeholder="A brief description"></textarea>
 
-          <div style="display:flex;gap:12px;margin-top:12px;align-items:flex-end">
-            <div style="flex:2">
-              <label for="image">Image URL</label>
-              <input id="image" type="url" placeholder="https://example.com/image.jpg">
-            </div>
-            <div style="flex:1">
-              <label for="publisher">Publisher</label>
-              <input id="publisher" type="text" value="Samridh jharkhand">
-            </div>
-          </div>
+          <label for="image" style="margin-top:12px">Image URL</label>
+          <input id="image" type="url" placeholder="https://example.com/image.jpg">
 
-          <div style="display:flex;gap:12px;margin-top:12px;align-items:end">
-            <div style="flex:1">
-              <label for="logo">Publisher Logo</label>
-              <input id="logo" type="url" value="https://samridhjharkhand.com/media-webp/250/2024-06/samridh-jharkhand.png">
-            </div>
-            <div style="flex:1">
-              <label for="datePublished">Date Published <span class="small" style="color:#fca5a5">(required)</span></label>
-              <input id="datePublished" type="date">
-            </div>
-            <div style="flex:1">
-              <label for="dateModified">Date Modified</label>
-              <input id="dateModified" type="date">
-            </div>
-          </div>
+          <label for="publisher" style="margin-top:12px">Publisher</label>
+          <input id="publisher" type="text" value="Samridh Jharkhand">
 
-          <div style="display:flex;gap:10px;margin-top:14px;align-items:center">
-            <button id="generateBtn" class="btn btn-primary" type="submit">Generate & Preview</button>
-            <button id="clearBtn" class="btn btn-ghost" type="button">Clear</button>
-            <label style="margin-left:auto" class="small" title="Upload image from device">
-              <input id="imageUpload" type="file" accept="image/*" style="display:none">Upload Image
-            </label>
-          </div>
+          <label for="logo" style="margin-top:12px">Publisher Logo</label>
+          <input id="logo" type="url" value="https://samridhjharkhand.com/media-webp/250/2024-06/samridh-jharkhand.png">
 
-          <details style="margin-top:12px;padding:10px;background:rgba(255,255,255,0.02);border-radius:10px">
-            <summary class="small muted">Add footer & social links (optional)</summary>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
-              <input id="socialFacebook" placeholder="Facebook URL">
-              <input id="socialX" placeholder="X / Twitter URL">
-              <input id="socialInstagram" placeholder="Instagram URL">
-              <input id="socialYouTube" placeholder="YouTube URL">
-            </div>
-          </details>
+          <label for="datePublished" style="margin-top:12px">Date Published <span style="color:#fca5a5">(required)</span></label>
+          <input id="datePublished" type="date">
 
+          <label for="dateModified" style="margin-top:12px">Date Modified</label>
+          <input id="dateModified" type="date">
+
+          <button class="btn btn-primary" type="submit" style="margin-top:14px">Generate & Preview</button>
         </form>
-
-        <div class="small muted" style="margin-top:12px">Tip: Headline and Date Published required for Google News. Use upload to embed local images.</div>
       </section>
 
       <aside>
-        <div class="card" style="margin-bottom:12px">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <h3 style="margin:0">Live Preview</h3>
-            <div class="small muted">Desktop</div>
-          </div>
-
+        <div class="card">
+          <h3>Live Preview</h3>
           <div class="preview" style="margin-top:12px">
             <img id="previewImage" src="https://via.placeholder.com/1200x628?text=Image" alt="preview">
             <div>
               <h3 id="previewHeadline">Article Headline</h3>
               <div id="previewDesc" class="muted">Short description will appear here.</div>
-              <div class="small muted" style="margin-top:10px"><span id="previewAuthor">— Author Name</span> <span id="previewDates">• 2025-01-01</span></div>
+              <div class="small muted" style="margin-top:10px">
+                <span id="previewAuthor">— Author Name</span> 
+                <span id="previewDates">• YYYY-MM-DD</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <h3 style="margin:0">Generated JSON-LD</h3>
-            <div style="display:flex;gap:8px;align-items:center">
-              <button id="copyBtn" class="btn btn-ghost">Copy</button>
-              <button id="copyScriptBtn" class="btn btn-ghost">Copy &lt;script&gt;</button>
-              <button id="downloadBtn" class="btn btn-ghost">Download .jsonld</button>
-              <button id="downloadHtmlBtn" class="btn btn-ghost">Download HTML</button>
-            </div>
-          </div>
-
-          <pre id="codeBlock" style="margin-top:12px">{}</pre>
+        <div class="card" style="margin-top:12px">
+          <h3>Generated JSON-LD</h3>
+          <pre id="codeBlock">{}</pre>
         </div>
-
-
       </aside>
-
     </main>
 
+    <!-- Footer -->
     <footer>
-      <div class="card footer-inner">
+      <div class="card footer-inner footer-animate" onclick="footerClickEffect(this)">
         <div style="display:flex;gap:10px;align-items:center">
           <div class="logo" style="width:40px;height:40px;font-size:14px">ER</div>
           <div>
             <div style="font-size:14px">Developed by <a href="#" title="Open profile">ER</a></div>
-            <div class="small muted">Crafting clean tools • © <span id="copyrightYear"></span> Samridh Media</div>
+            <div class="small muted">
+              Crafting clean tools • © <span id="copyrightYear"></span>
+              Samridh Media
+            </div>
           </div>
         </div>
-
         <div style="display:flex;align-items:center;gap:12px">
           <div class="socials">
             <div id="linkFacebook" class="social hidden" title="Facebook">F</div>
@@ -179,10 +151,76 @@
             <div id="linkInstagram" class="social hidden" title="Instagram">I</div>
             <div id="linkYouTube" class="social hidden" title="YouTube">Y</div>
           </div>
-          <div class="small muted">Disclaimer: Content generated using this tool is for informational purposes only. Verify facts and rights before publishing.</div>
+          <div class="small muted">
+            Disclaimer: Content generated using this tool is for informational purposes only. Verify facts and rights before publishing.
+          </div>
         </div>
       </div>
     </footer>
   </div>
+
+  <script>
+    // कॉपीराइट वर्ष
+    document.getElementById('copyrightYear').textContent =
+      new Date().getFullYear();
+
+    // Footer क्लिक इफेक्ट
+    function footerClickEffect(elem) {
+      elem.classList.remove("click-anim");
+      void elem.offsetWidth; // reflow trick
+      elem.classList.add("click-anim");
+    }
+
+    // JSON-LD Generate
+    function generateSchema() {
+      const url = document.getElementById('url').value;
+      const headline = document.getElementById('headline').value.trim();
+      const author = document.getElementById('author').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const image = document.getElementById('image').value.trim();
+      const publisher = document.getElementById('publisher').value.trim() || "Samridh Jharkhand";
+      const logo = document.getElementById('logo').value.trim();
+      const datePublished = document.getElementById('datePublished').value;
+      const dateModified = document.getElementById('dateModified').value || datePublished;
+
+      if (!headline || !datePublished) {
+        alert('Headline और Date Published भरना ज़रूरी है!');
+        return;
+      }
+
+      const schema = {
+        "@context": "https://schema.org",
+        "@type": "NewsArticle",
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": url || ""
+        },
+        "headline": headline,
+        "description": description,
+        "image": image ? [image] : [],
+        "author": {
+          "@type": "Person",
+          "name": author || ""
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": publisher,
+          "logo": {
+            "@type": "ImageObject",
+            "url": logo
+          }
+        },
+        "datePublished": datePublished,
+        "dateModified": dateModified
+      };
+
+      document.getElementById('codeBlock').textContent = JSON.stringify(schema, null, 2);
+      document.getElementById('previewHeadline').textContent = headline;
+      document.getElementById('previewDesc').textContent = description;
+      document.getElementById('previewAuthor').textContent = author ? `— ${author}` : '';
+      document.getElementById('previewDates').textContent = `• ${datePublished}`;
+      document.getElementById('previewImage').src = image || "https://via.placeholder.com/1200x628?text=Image";
+    }
+  </script>
 </body>
 </html>
